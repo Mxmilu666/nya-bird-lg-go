@@ -56,7 +56,7 @@ func GetBirdSummary(c *gin.Context) {
 	var targetServers []string
 
 	if serverParam != "" {
-		// 将包含+号的参数分割成多个服务器ID
+		// 将包含,号的参数分割成多个服务器ID
 		targetServers = strings.Split(serverParam, ",")
 	}
 
