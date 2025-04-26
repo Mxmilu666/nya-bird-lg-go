@@ -1,3 +1,11 @@
+<script setup lang="ts">
+import type { NodeProtocolDetail } from '@/api/detail';
+
+defineProps<{
+    detailData: NodeProtocolDetail;
+}>();
+</script>
+
 <template>
     <div class="detail-section">
         <h3>Basic Information</h3>
@@ -20,14 +28,6 @@
         </a-descriptions>
     </div>
 </template>
-
-<script setup lang="ts">
-import type { NodeProtocolDetail } from '@/api/detail';
-
-defineProps<{
-    detailData: NodeProtocolDetail;
-}>();
-</script>
 
 <style scoped>
 .detail-section {

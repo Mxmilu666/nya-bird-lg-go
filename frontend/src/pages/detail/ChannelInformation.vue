@@ -1,3 +1,11 @@
+<script setup lang="ts">
+import RouteStatsComponent from './RouteStats.vue';
+
+defineProps<{
+    channels: any[];
+}>();
+</script>
+
 <template>
     <div class="detail-section" v-if="channels && channels.length > 0">
         <h3>Channel Information</h3>
@@ -22,14 +30,6 @@
         </div>
     </div>
 </template>
-
-<script setup lang="ts">
-import RouteStatsComponent from './RouteStats.vue';
-
-defineProps<{
-    channels: any[];
-}>();
-</script>
 
 <style scoped>
 .detail-section {

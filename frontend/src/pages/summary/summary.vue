@@ -1,32 +1,3 @@
-<template>
-    <div class="summary-container">
-        <a-alert
-            v-if="errorMsg"
-            type="error"
-            :message="errorMsg"
-            show-icon
-            style="margin-bottom: 20px"
-        />
-        <a-spin :spinning="loading">
-            <div v-if="groupedData.length === 0 && !loading" class="empty-state">
-                <a-empty description="No Data" />
-                <a-button type="primary" @click="fetchData" style="margin-top: 16px">
-                    Reload
-                </a-button>
-            </div>
-            <div v-else>
-                <div v-for="node in groupedData" :key="node.id" class="node-section">
-                    <h1 class="node-title">{{ node.displayName }}: show protocols</h1>
-                    <summary-table 
-                        :protocols="node.protocols" 
-                        :server-id="node.id" 
-                    />
-                </div>
-            </div>
-        </a-spin>
-    </div>
-</template>
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getSummary } from '@/api/summary'
@@ -66,7 +37,7 @@ const fetchData = async () => {
 
         // 转换数据
         const nodes = Object.entries(actualData).map(([nodeId, nodeInfo]) => {
-            const info = nodeInfo as any
+            const info = nodeInfo as { displayName?: string; protocols?: Protocol[] }
             return {
                 id: nodeId,
                 displayName: info?.displayName || nodeId,
@@ -86,6 +57,35 @@ onMounted(() => {
     fetchData()
 })
 </script>
+
+<template>
+    <div class="summary-container">
+        <a-alert
+            v-if="errorMsg"
+            type="error"
+            :message="errorMsg"
+            show-icon
+            style="margin-bottom: 20px"
+        />
+        <a-spin :spinning="loading">
+            <div v-if="groupedData.length === 0 && !loading" class="empty-state">
+                <a-empty description="No Data" />
+                <a-button type="primary" @click="fetchData" style="margin-top: 16px">
+                    Reload
+                </a-button>
+            </div>
+            <div v-else>
+                <div v-for="node in groupedData" :key="node.id" class="node-section">
+                    <h1 class="node-title">{{ node.displayName }}: show protocols</h1>
+                    <summary-table 
+                        :protocols="node.protocols" 
+                        :server-id="node.id" 
+                    />
+                </div>
+            </div>
+        </a-spin>
+    </div>
+</template>
 
 <style scoped>
 .summary-container {

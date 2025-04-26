@@ -1,18 +1,3 @@
-<template>
-    <div class="table-responsive">
-        <a-table
-            :columns="columns"
-            :data-source="protocols"
-            :pagination="false"
-            :bordered="true"
-            :row-key="(record: Protocol) => record.name"
-            size="middle"
-            :customRow="customRowStyle"
-            :scroll="{ x: '800px' }"
-        />
-    </div>
-</template>
-
 <script setup lang="ts">
 import type { TableColumnsType } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
@@ -40,16 +25,20 @@ const columns: TableColumnsType = [
         dataIndex: 'name',
         width: 200,
         customRender: ({ text }) => {
-            return h('a', {
-                onClick: () => {
-                    router.push(`/detail/${props.serverId}/${text}`)
+            return h(
+                'a',
+                {
+                    onClick: () => {
+                        router.push(`/detail/${props.serverId}/${text}`)
+                    },
+                    style: {
+                        cursor: 'pointer',
+                        color: '#1890ff',
+                        textDecoration: 'none'
+                    }
                 },
-                style: {
-                    cursor: 'pointer',
-                    color: '#1890ff',
-                    textDecoration: 'none'
-                }
-            }, text)
+                text
+            )
         }
     },
     {
@@ -84,21 +73,32 @@ const columns: TableColumnsType = [
 // 添加表格行的自定义样式
 const customRowStyle = (record: Protocol) => {
     const state = record.state.toLowerCase()
-    let style: Record<string, string> = {}
-
-    if (state === 'up') {
-        style = { background: '#eafbf4' } // 浅绿色背景
-    } else if (state === 'down') {
-        style = { background: '#FAFAFA' } // 浅灰色背景
-    } else if (state === 'start') {
-        style = { background: '#fff1f0' } // 浅红色背景
-    } else if (state === 'passive') {
-        style = { background: '#e6f7ff' } // 浅蓝色背景
+    
+    const styleMap: Record<string, Record<string, string>> = {
+        'up': { background: '#eafbf4' },      // 浅绿色背景
+        'down': { background: '#FAFAFA' },    // 浅灰色背景
+        'start': { background: '#fff1f0' },   // 浅红色背景
+        'passive': { background: '#e6f7ff' }  // 浅蓝色背景
     }
-
-    return { style }
+    
+    return { style: styleMap[state] || {} }
 }
 </script>
+
+<template>
+    <div class="table-responsive">
+        <a-table
+            :columns="columns"
+            :data-source="protocols"
+            :pagination="false"
+            :bordered="true"
+            :row-key="(record: Protocol) => record.name"
+            size="middle"
+            :customRow="customRowStyle"
+            :scroll="{ x: '800px' }"
+        />
+    </div>
+</template>
 
 <style scoped>
 :deep(table tbody tr:hover > td) {
@@ -116,7 +116,7 @@ const customRowStyle = (record: Protocol) => {
         padding: 8px 6px;
         font-size: 13px;
     }
-    
+
     :deep(.ant-table-thead > tr > th) {
         white-space: nowrap;
     }
