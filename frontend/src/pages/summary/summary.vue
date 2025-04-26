@@ -89,7 +89,7 @@ onMounted(() => {
 
 <style scoped>
 .summary-container {
-    padding: 20px;
+    padding: 30px 70px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -114,7 +114,7 @@ onMounted(() => {
 
 @media screen and (max-width: 768px) {
     .summary-container {
-        padding: 12px;
+        padding: 25px 20px;
     }
     
     .node-title {
@@ -126,4 +126,5 @@ onMounted(() => {
         margin-bottom: 20px;
     }
 }
+
 </style>

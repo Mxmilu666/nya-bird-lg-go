@@ -19,8 +19,4 @@ defineOptions({
 .ant-layout {
     min-height: 100vh;
 }
-
-.ant-layout-content {
-    padding: 24px;
-}
 </style>

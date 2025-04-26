@@ -10,5 +10,3 @@ defineProps<{
         <a-textarea :rows="20" :value="rawOutput" readonly />
     </div>
 </template>
-
-<style scoped/>

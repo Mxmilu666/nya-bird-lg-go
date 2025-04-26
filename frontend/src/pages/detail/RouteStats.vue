@@ -82,12 +82,30 @@ const dataSource = computed(() => [
 </script>
 
 <template>
-    <a-table
-        :columns="columns"
-        :data-source="dataSource"
-        :pagination="false"
-        size="small"
-        bordered
-    >
-    </a-table>
+    <div class="table-responsive">
+        <a-table
+            :columns="columns"
+            :data-source="dataSource"
+            :pagination="false"
+            :bordered="true"
+            size="small"
+            :scroll="{ x: '700px' }"
+        >
+        </a-table>
+    </div>
 </template>
+
+<style scoped>
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+@media screen and (max-width: 768px) {
+    :deep(.ant-table-thead > tr > th),
+    :deep(.ant-table-tbody > tr > td) {
+        padding: 8px 6px;
+        font-size: 13px;
+    }
+}
+</style>

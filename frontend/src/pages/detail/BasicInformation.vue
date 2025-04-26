@@ -1,15 +1,32 @@
 <script setup lang="ts">
-import type { NodeProtocolDetail } from '@/api/detail';
+import type { NodeProtocolDetail } from '@/api/detail'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 defineProps<{
-    detailData: NodeProtocolDetail;
-}>();
+    detailData: NodeProtocolDetail
+}>()
+
+// 添加响应式判断
+const isMobile = ref(false)
+
+const checkMobile = () => {
+    isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkMobile)
+})
 </script>
 
 <template>
     <div class="detail-section">
         <h3>Basic Information</h3>
-        <a-descriptions bordered :column="2">
+        <a-descriptions bordered :column="isMobile ? 1 : 2">
             <a-descriptions-item label="Status">{{
                 detailData.detail.state
             }}</a-descriptions-item>

@@ -49,9 +49,13 @@ defineProps<{
 .stats-item {
     flex: 1 1 calc(50% - 20px);
     margin-bottom: 20px;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 .stats-item.full-width {
     flex: 1 1 100%;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 </style>
