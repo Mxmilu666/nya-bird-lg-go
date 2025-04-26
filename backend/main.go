@@ -21,12 +21,12 @@ func main() {
 		panic("Failed to initialize logger")
 	}
 
-	l.Info("Hello,Nya-Bird-LG!")
+	l.Info("Nya!,Nya-Bird-LG")
 
 	// 预览配置
 	configJSON, err := json.Marshal(source.AppConfig)
 	if err != nil {
-		l.Error("转换配置到JSON失败", "error", err)
+		l.Error("Failed to convert configuration to JSON", "error", err)
 		return
 	}
 	l.Info("Configuration", "config", string(configJSON))

@@ -60,7 +60,7 @@ func getEnvAs[T string | int | bool](key string, defaultValue T) T {
 	}
 
 	if err != nil {
-		logger.Warn(fmt.Sprintf("环境变量 %s 格式错误，使用默认值: %v", key, defaultValue))
+		logger.Warn(fmt.Sprintf("Invalid format for environment variable %s, using default value: %v", key, defaultValue))
 		return defaultValue
 	}
 

@@ -78,9 +78,7 @@ func GetBirdSummary(c *gin.Context) {
 				}
 			}
 			if !found {
-				c.JSON(404, gin.H{
-					"error": "服务器 " + targetServer + " 不存在",
-				})
+				SendResponse(c, 404, "error", "Server "+targetServer+" not found")
 				return
 			}
 		}
@@ -97,9 +95,7 @@ func GetBirdSummary(c *gin.Context) {
 	// 使用batchRequest获取服务器的汇总信息
 	responses, err := helper.BatchRequest(c, serverIDs, "/bird", command)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"error": err.Error(),
-		})
+		SendResponse(c, 500, "error", err.Error())
 		return
 	}
 
@@ -123,5 +119,5 @@ func GetBirdSummary(c *gin.Context) {
 		result[server.ID] = serverKey
 	}
 
-	c.JSON(200, result)
+	SendResponse(c, 200, "success", result)
 }

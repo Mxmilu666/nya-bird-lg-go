@@ -14,6 +14,7 @@ func initRouter(r *gin.Engine) *gin.Engine {
 		bird := api.Group("/bird")
 		{
 			bird.GET("/summary", handles.GetBirdSummary)
+			bird.GET("/detail", handles.GetBirdDetail)
 		}
 	}
 	return r
