@@ -1,6 +1,7 @@
 package server
 
 import (
+	"embed"
 	"fmt"
 	"net/url"
 	"strings"
@@ -11,13 +12,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Setupserver() {
+func Setupserver(frontendFS embed.FS) {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
 	r.Use(filterLogs())
 	r.Use(corsMiddleware())
-	r = initRouter(r)
+	r = initRouter(r, frontendFS)
 
 	// start http server
 	address := fmt.Sprintf("%s:%d", source.AppConfig.Server.Host, source.AppConfig.Server.Port)

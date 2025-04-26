@@ -1,12 +1,16 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
 
 	"github.com/Mxmilu666/nya-bird-lg-go/source"
 	logger "github.com/Mxmilu666/nya-bird-lg-go/source/logger"
 	"github.com/Mxmilu666/nya-bird-lg-go/source/server"
 )
+
+//go:embed frontend
+var frontendFS embed.FS
 
 func main() {
 	// 加载配置
@@ -32,5 +36,5 @@ func main() {
 	l.Info("Configuration", "config", string(configJSON))
 
 	// 启动服务器
-	server.Setupserver()
+	server.Setupserver(frontendFS)
 }
