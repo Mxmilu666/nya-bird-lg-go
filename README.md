@@ -33,4 +33,4 @@ This project was inspired and helped by the following projects:
 
 ## License
 
-[MIT License](LICENSE)
+[GPL License](LICENSE)
