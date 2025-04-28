@@ -14,6 +14,7 @@ export async function getSummary(): Promise<
                 since: string
                 info: string
             }>
+            error?: string
         }
     }>
 > {
@@ -33,6 +34,7 @@ export async function getNodeSummary(node: string): Promise<
             since: string
             info: string
         }>
+        error?: string
     }>
 > {
     return axios.get(`/bird/summary/${node}`).then((res) => res.data)

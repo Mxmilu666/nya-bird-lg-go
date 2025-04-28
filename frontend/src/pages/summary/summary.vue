@@ -16,6 +16,7 @@ interface NodeData {
     id: string
     displayName: string
     protocols: Protocol[]
+    error?: string
 }
 
 const loading = ref(true)
@@ -37,11 +38,16 @@ const fetchData = async () => {
 
         // 转换数据
         const nodes = Object.entries(actualData).map(([nodeId, nodeInfo]) => {
-            const info = nodeInfo as { displayName?: string; protocols?: Protocol[] }
+            const info = nodeInfo as {
+                displayName?: string
+                protocols?: Protocol[]
+                error?: string
+            }
             return {
                 id: nodeId,
                 displayName: info?.displayName || nodeId,
-                protocols: Array.isArray(info?.protocols) ? info.protocols : []
+                protocols: Array.isArray(info?.protocols) ? info.protocols : [],
+                error: info?.error // 保留error信息
             }
         })
 
@@ -77,9 +83,17 @@ onMounted(() => {
             <div v-else>
                 <div v-for="node in groupedData" :key="node.id" class="node-section">
                     <h1 class="node-title">{{ node.displayName }}: show protocols</h1>
-                    <summary-table 
-                        :protocols="node.protocols" 
-                        :server-id="node.id" 
+                    <a-alert
+                        v-if="node.error"
+                        type="error"
+                        :message="node.error"
+                        show-icon
+                        style="margin-bottom: 12px"
+                    />
+                    <summary-table
+                        v-if="!node.error"
+                        :protocols="node.protocols"
+                        :server-id="node.id"
                     />
                 </div>
             </div>
@@ -116,15 +130,14 @@ onMounted(() => {
     .summary-container {
         padding: 25px 20px;
     }
-    
+
     .node-title {
         font-size: 16px;
         margin-bottom: 8px;
     }
-    
+
     .node-section {
         margin-bottom: 20px;
     }
 }
-
 </style>

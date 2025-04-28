@@ -56,14 +56,11 @@ func GetBirdSummary(c *gin.Context) {
 	var targetServers []string
 
 	if serverParam != "" {
-		// 将包含,号的参数分割成多个服务器ID
 		targetServers = strings.Split(serverParam, ",")
 	}
 
-	// 从配置中获取所有服务器ID
 	var serverIDs []string
 	if len(targetServers) > 0 {
-		// 如果指定了目标服务器，添加所有匹配的服务器
 		for _, targetServer := range targetServers {
 			targetServer = strings.TrimSpace(targetServer)
 			if targetServer == "" {
@@ -83,27 +80,18 @@ func GetBirdSummary(c *gin.Context) {
 			}
 		}
 	} else {
-		// 如果没有指定服务器，返回所有服务器
 		for _, server := range source.AppConfig.LG.Servers {
 			serverIDs = append(serverIDs, server.ID)
 		}
 	}
 
-	// 获取summary命令
 	command := helper.GetBirdCommand("summary", "")
 
-	// 使用batchRequest获取服务器的汇总信息
-	responses, err := helper.BatchRequest(c, serverIDs, "/bird", command)
-	if err != nil {
-		SendResponse(c, 500, "error", err.Error())
-		return
-	}
+	responses, errors := helper.BatchRequest(c, serverIDs, "/bird", command)
 
-	// 构造响应
 	result := make(map[string]map[string]interface{})
 	for i, serverId := range serverIDs {
 		var server source.ServerInfo
-		// 查找对应的服务器配置
 		for _, s := range source.AppConfig.LG.Servers {
 			if s.ID == serverId {
 				server = s
@@ -114,10 +102,18 @@ func GetBirdSummary(c *gin.Context) {
 		serverKey := map[string]interface{}{
 			"id":          server.ID,
 			"displayName": server.DisplayName,
-			"protocols":   parseSummaryOutput(responses[i]),
 		}
+
+		if errors[i] != nil {
+			serverKey["error"] = errors[i].Error()
+		} else {
+			serverKey["protocols"] = parseSummaryOutput(responses[i])
+		}
+
 		result[server.ID] = serverKey
 	}
 
-	SendResponse(c, 200, "success", result)
+	response := result
+
+	SendResponse(c, 200, "success", response)
 }

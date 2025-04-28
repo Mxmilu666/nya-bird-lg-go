@@ -175,17 +175,11 @@ func GetBirdDetail(c *gin.Context) {
 	command := helper.GetBirdCommand("detail", protocolParam)
 
 	// 使用batchRequest获取服务器的详细信息
-	responses, err := helper.BatchRequest(c, serverIDs, "/bird", command)
-	if err != nil {
-		SendResponse(c, 500, "error", err.Error())
-		return
-	}
+	responses, errors := helper.BatchRequest(c, serverIDs, "/bird", command)
 
-	// 构造响应
 	result := make(map[string]map[string]interface{})
 	for i, serverId := range serverIDs {
 		var server source.ServerInfo
-		// 查找对应的服务器配置
 		for _, s := range source.AppConfig.LG.Servers {
 			if s.ID == serverId {
 				server = s
@@ -193,17 +187,22 @@ func GetBirdDetail(c *gin.Context) {
 			}
 		}
 
-		// 解析详细输出
-		parsedDetail := parseDetailOutput(responses[i])
-
 		serverKey := map[string]interface{}{
 			"id":          server.ID,
 			"displayName": server.DisplayName,
-			"detail":      parsedDetail,
-			"rawOutput":   responses[i], // 保留原始输出
 		}
+
+		if errors[i] != nil {
+			serverKey["error"] = errors[i].Error()
+		} else {
+			serverKey["detail"] = parseDetailOutput(responses[i])
+			serverKey["rawOutput"] = responses[i]
+		}
+
 		result[server.ID] = serverKey
 	}
 
-	SendResponse(c, 200, "success", result)
+	response := result
+
+	SendResponse(c, 200, "success", response)
 }

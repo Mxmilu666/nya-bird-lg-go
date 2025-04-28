@@ -13,14 +13,15 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// BatchRequest 并发发送命令到 lgproxy 节点，并返回按输入顺序的响应
+// BatchRequest 并发发送命令到 lgproxy 节点，并返回按输入顺序的响应和错误信息
 func BatchRequest(
 	parentCtx context.Context,
 	serverIDs []string,
 	endpoint, command string,
-) ([]string, error) {
+) ([]string, []error) {
 	g, ctx := errgroup.WithContext(parentCtx)
 	responses := make([]string, len(serverIDs))
+	errors := make([]error, len(serverIDs))
 	cfg := GetConfig()
 	client := &http.Client{
 		Transport: transport,
@@ -34,6 +35,7 @@ func BatchRequest(
 			// 校验节点合法性
 			if !slices.Contains(cfg.servers, serverID) {
 				responses[idx] = "request failed: invalid server"
+				errors[idx] = nil
 				return nil
 			}
 
@@ -52,18 +54,21 @@ func BatchRequest(
 			// 发起请求
 			req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 			if err != nil {
-				return err
+				errors[idx] = err
+				return nil
 			}
 			resp, err := client.Do(req)
 			if err != nil {
-				return err
+				errors[idx] = err
+				return nil
 			}
 			defer resp.Body.Close()
 
 			// 读取全部
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return err
+				errors[idx] = err
+				return nil
 			}
 			if len(body) == 0 {
 				responses[idx] = "node returned empty response, please refresh to try again."
@@ -76,7 +81,7 @@ func BatchRequest(
 
 	// 等待所有 goroutine 完成或出错
 	if err := g.Wait(); err != nil {
-		return nil, err
+		return responses, errors
 	}
-	return responses, nil
+	return responses, errors
 }

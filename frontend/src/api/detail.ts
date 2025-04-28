@@ -38,6 +38,7 @@ export interface NodeProtocolDetail {
     displayName: string
     id: string
     rawOutput: string
+    error?: string
 }
 
 // 获取指定节点和协议的详情信息
