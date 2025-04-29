@@ -41,9 +41,15 @@ func BatchRequest(
 
 			// 构造完整的服务器地址
 			serverAddr := serverID + "." + source.AppConfig.LG.Domain
+
+			scheme := "http"
+			if source.AppConfig.LG.SSL {
+				scheme = "https"
+			}
+
 			// 构造 URL
 			u := url.URL{
-				Scheme: "http",
+				Scheme: scheme,
 				Host:   serverAddr + ":" + strconv.Itoa(source.AppConfig.LG.ProxyPort),
 				Path:   endpoint,
 			}
