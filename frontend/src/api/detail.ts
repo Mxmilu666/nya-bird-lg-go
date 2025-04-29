@@ -42,7 +42,7 @@ export interface NodeProtocolDetail {
 }
 
 // 获取指定节点和协议的详情信息
-export async function getProtocolDetail(
+export function getProtocolDetail(
     server: string,
     protocol: string
 ): Promise<
@@ -53,16 +53,4 @@ export async function getProtocolDetail(
     return axios
         .get(`/bird/detail?server=${server}&protocol=${protocol}`)
         .then((res) => res.data)
-}
-
-// 指定多个节点或协议
-export async function queryProtocolDetail(params: {
-    server?: string | string[]
-    protocol?: string | string[]
-}): Promise<
-    Response<{
-        [key: string]: NodeProtocolDetail
-    }>
-> {
-    return axios.get('/bird/detail', { params }).then((res) => res.data)
 }

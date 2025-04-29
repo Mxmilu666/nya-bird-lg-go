@@ -1,7 +1,7 @@
 import axios, { type Response } from '@/utils/axios'
 
 // 获取所有节点的Bird协议摘要信息
-export async function getSummary(): Promise<
+export function getSummary(): Promise<
     Response<{
         [key: string]: {
             displayName: string
@@ -22,7 +22,7 @@ export async function getSummary(): Promise<
 }
 
 // 获取单个节点的Bird协议摘要信息
-export async function getNodeSummary(node: string): Promise<
+export function getNodeSummary(node: string): Promise<
     Response<{
         displayName: string
         id: string

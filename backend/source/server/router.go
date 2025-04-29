@@ -29,6 +29,12 @@ func initRouter(r *gin.Engine, frontendFS embed.FS) *gin.Engine {
 			bird.GET("/summary", handles.GetBirdSummary)
 			bird.GET("/detail", handles.GetBirdDetail)
 		}
+
+		// 服务器信息路由
+		api.GET("/servers", handles.GetServerList)
+
+		// traceroute 路由
+		api.GET("/traceroute", handles.GetTraceroute)
 	}
 
 	return r

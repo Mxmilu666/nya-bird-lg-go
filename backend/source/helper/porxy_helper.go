@@ -35,27 +35,22 @@ func BatchRequest(
 			// 校验节点合法性
 			if !slices.Contains(cfg.servers, serverID) {
 				responses[idx] = "request failed: invalid server"
-				errors[idx] = nil
 				return nil
 			}
 
-			// 构造完整的服务器地址
-			serverAddr := serverID + "." + source.AppConfig.LG.Domain
-
+			// 构造请求URL
 			scheme := "http"
 			if source.AppConfig.LG.SSL {
 				scheme = "https"
 			}
 
-			// 构造 URL
+			serverAddr := serverID + "." + source.AppConfig.LG.Domain
 			u := url.URL{
-				Scheme: scheme,
-				Host:   serverAddr + ":" + strconv.Itoa(source.AppConfig.LG.ProxyPort),
-				Path:   endpoint,
+				Scheme:   scheme,
+				Host:     serverAddr + ":" + strconv.Itoa(source.AppConfig.LG.ProxyPort),
+				Path:     endpoint,
+				RawQuery: "q=" + url.QueryEscape(command),
 			}
-			q := u.Query()
-			q.Set("q", command)
-			u.RawQuery = q.Encode()
 
 			// 发起请求
 			req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -63,6 +58,7 @@ func BatchRequest(
 				errors[idx] = err
 				return nil
 			}
+
 			resp, err := client.Do(req)
 			if err != nil {
 				errors[idx] = err
@@ -70,24 +66,23 @@ func BatchRequest(
 			}
 			defer resp.Body.Close()
 
-			// 读取全部
+			// 读取响应
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				errors[idx] = err
 				return nil
 			}
+
 			if len(body) == 0 {
 				responses[idx] = "node returned empty response, please refresh to try again."
 			} else {
 				responses[idx] = string(body)
 			}
+
 			return nil
 		})
 	}
 
-	// 等待所有 goroutine 完成或出错
-	if err := g.Wait(); err != nil {
-		return responses, errors
-	}
+	g.Wait() // 等待所有请求完成
 	return responses, errors
 }
