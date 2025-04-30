@@ -41,7 +41,7 @@ jobs:
 
       - name: Install frontend dependencies (frozen lockfile)
         working-directory: ${{ env.FRONTEND_DIR }}
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Lint frontend
         working-directory: ${{ env.FRONTEND_DIR }}

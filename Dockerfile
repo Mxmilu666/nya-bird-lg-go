@@ -25,7 +25,6 @@ COPY --from=builder /app/nya-bird-lg-go /app/nya-bird-lg-go
 
 # 复制README和配置示例
 COPY README.md /app/
-COPY backend/.env.sample /app/.env.sample
 
 # 创建卷用于持久化配置
 VOLUME /app/config
