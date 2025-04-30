@@ -9,14 +9,7 @@ COPY backend/ ./
 RUN apk add --no-cache git
 
 # 下载依赖
-WORKDIR /app
 RUN go mod download
-
-# 确保前端目录存在
-RUN mkdir -p ./frontend/dist
-
-# 复制前端构建产物
-COPY frontend/dist/ ./frontend/dist/
 
 # 构建静态二进制
 RUN CGO_ENABLED=0 GOOS=linux go build -o nya-bird-lg-go .
