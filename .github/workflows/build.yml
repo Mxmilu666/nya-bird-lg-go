@@ -35,9 +35,9 @@ jobs:
       - name: Set up Node.js (with pnpm cache)
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: '${{ env.FRONTEND_DIR }}/pnpm-lock.yaml'
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: "${{ env.FRONTEND_DIR }}/pnpm-lock.yaml"
 
       - name: Install frontend dependencies (frozen lockfile)
         working-directory: ${{ env.FRONTEND_DIR }}
@@ -66,12 +66,36 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: linux; arch: amd64; binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
-          - os: linux; arch: arm64; binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
-          - os: linux; arch: arm;   binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
-          - os: windows; arch: amd64; binary: nya-bird-lg-go.exe; ext: zip;    cmd: zip -r
-          - os: darwin; arch: amd64; binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
-          - os: darwin; arch: arm64; binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
+          - os: "linux"
+            arch: "amd64"
+            binary: "nya-bird-lg-go"
+            ext: "tar.gz"
+            cmd: "tar -czf"
+          - os: "linux"
+            arch: "arm64"
+            binary: "nya-bird-lg-go"
+            ext: "tar.gz"
+            cmd: "tar -czf"
+          - os: "linux"
+            arch: "arm"
+            binary: "nya-bird-lg-go"
+            ext: "tar.gz"
+            cmd: "tar -czf"
+          - os: "windows"
+            arch: "amd64"
+            binary: "nya-bird-lg-go.exe"
+            ext: "zip"
+            cmd: "zip -r"
+          - os: "darwin"
+            arch: "amd64"
+            binary: "nya-bird-lg-go"
+            ext: "tar.gz"
+            cmd: "tar -czf"
+          - os: "darwin"
+            arch: "arm64"
+            binary: "nya-bird-lg-go"
+            ext: "tar.gz"
+            cmd: "tar -czf"
 
     steps:
       - name: Checkout code (full history)
@@ -92,7 +116,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'    # 可改为 go-version-file: go.mod
+          go-version: "1.21" # 可改为 go-version-file: go.mod
 
       - name: Download frontend artifacts
         uses: actions/download-artifact@v4
