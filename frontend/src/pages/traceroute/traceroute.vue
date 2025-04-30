@@ -32,10 +32,10 @@ async function fetchServers() {
                 selectedServers.value = []
             }
         } else {
-            error.value = response.msg || '获取服务器列表失败'
+            error.value = response.msg || 'Failed to get server list'
         }
     } catch (err) {
-        error.value = err instanceof Error ? err.message : '网络请求错误'
+        error.value = err instanceof Error ? err.message : 'Network Request Error'
         console.error(err)
     }
 }
@@ -43,7 +43,7 @@ async function fetchServers() {
 // 执行路由追踪
 async function runTraceroute() {
     if (!target.value || selectedServers.value.length === 0) {
-        error.value = '请至少选择一个服务器并输入目标地址'
+        error.value = 'Please select at least one server and enter the destination address'
         return
     }
 
@@ -66,13 +66,13 @@ async function runTraceroute() {
 
             // 检查是否有错误
             if (Object.keys(response.data).length === 0) {
-                error.value = '所有路由追踪请求均失败'
+                error.value = 'All route trace requests fail'
             }
         } else {
-            error.value = response.msg || '路由追踪请求失败'
+            error.value = response.msg || 'Route Trace Request Failed'
         }
     } catch (err) {
-        error.value = err instanceof Error ? err.message : '网络请求错误'
+        error.value = err instanceof Error ? err.message : 'Network Request Error'
         console.error(err)
     } finally {
         loading.value = false
