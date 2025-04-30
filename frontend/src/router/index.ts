@@ -11,17 +11,17 @@ const router = createRouter({
         {
             path: '/summary',
             name: 'summary',
-            component: () => import('@/pages/summary/summary.vue')
+            component: () => import('@/pages/summary/SummaryPage.vue')
         },
         {
             path: '/detail/:server/:protocol',
             name: 'detail',
-            component: () => import('@/pages/detail/detail.vue')
+            component: () => import('@/pages/detail/DetailPage.vue')
         },
         {
             path: '/traceroute',
             name: 'traceroute',
-            component: () => import('@/pages/traceroute/traceroute.vue')
+            component: () => import('@/pages/traceroute/TraceroutePage.vue')
         }
     ]
 })

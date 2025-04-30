@@ -33,6 +33,6 @@ axios.interceptors.response.use(
   }
 )
 
-export type Response<T = any> = { status: number; msg: string; data: T }
+export type Response<T = unknown> = { status: number; msg: string; data: T }
 
 export default axios

@@ -2,14 +2,16 @@ const eventList = ['Unauthorized', 'NetworkError', 'UnknownError', 'Message'] as
 
 export type EventList = (typeof eventList)[number]
 
-const _listenClient = new Map<string, Set<Function>>()
+export type EventCallback = (...args: unknown[]) => void
 
-export const on = (event: EventList, callback: Function) => {
-  if (!_listenClient.has(event)) _listenClient.set(event, new Set<Function>())
+const _listenClient = new Map<string, Set<EventCallback>>()
+
+export const on = (event: EventList, callback: EventCallback) => {
+  if (!_listenClient.has(event)) _listenClient.set(event, new Set<EventCallback>())
   _listenClient.get(event)?.add(callback)
 }
 
-export const emit = (event: EventList, ...args: any[]) => {
+export const emit = (event: EventList, ...args: unknown[]) => {
   _listenClient.get(event)?.forEach((callback) => {
     callback(...args)
   })

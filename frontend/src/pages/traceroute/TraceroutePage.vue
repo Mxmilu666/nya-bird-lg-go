@@ -79,11 +79,6 @@ async function runTraceroute() {
     }
 }
 
-// 切换查看的服务器结果
-function viewServerResult(serverId: string) {
-    currentViewServer.value = serverId
-}
-
 // 切换原始输出显示
 function toggleRawOutput() {
     showRawOutput.value = !showRawOutput.value

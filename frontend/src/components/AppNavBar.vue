@@ -2,12 +2,16 @@
 import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { MenuOutlined } from '@ant-design/icons-vue'
+import type { MenuProps } from 'ant-design-vue'
 
-interface MenuItem {
+// 导入 ItemType 类型
+type MenuItem = NonNullable<MenuProps['items']>[number]
+
+interface MenuConfig {
     key: string
     label: string
     path: string
-    icon?: any
+    icon?: string
 }
 
 const router = useRouter()
@@ -16,7 +20,7 @@ const selectedKeys = ref<string[]>([])
 const isMobile = ref(false)
 
 // 菜单配置
-const menuConfig: MenuItem[] = [
+const menuConfig: MenuConfig[] = [
     {
         key: '1',
         label: 'Summary',
@@ -29,22 +33,23 @@ const menuConfig: MenuItem[] = [
     }
 ]
 
-const menuItems = computed(() =>
+// 修改计算属性，确保返回的是符合 Ant Design 要求的 MenuItem 类型
+const menuItems = computed<MenuItem[]>(() =>
     menuConfig.map((item) => ({
         key: item.key,
         label: item.label,
-        icon: item.icon,
         onClick: () => router.push(item.path)
     }))
 )
 
-const throttle = (fn: Function, delay = 250) => {
+// 使用泛型定义 throttle 函数
+const throttle = <T extends (...args: unknown[]) => unknown>(fn: T, delay = 250) => {
     let lastCall = 0
-    return function (...args: any[]) {
+    return function (this: unknown, ...args: Parameters<T>): ReturnType<T> | undefined {
         const now = Date.now()
-        if (now - lastCall < delay) return
+        if (now - lastCall < delay) return undefined
         lastCall = now
-        return fn(...args)
+        return fn.apply(this, args) as ReturnType<T>
     }
 }
 

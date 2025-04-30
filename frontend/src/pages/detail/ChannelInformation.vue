@@ -1,9 +1,22 @@
 <script setup lang="ts">
-import RouteStatsComponent from './RouteStats.vue';
+import RouteStatsComponent from './RouteStats.vue'
+import type { RouteStats } from '@/api/detail'
+
+interface Channel {
+    name: string
+    state: string
+    bgp_next_hop: string
+    route_stats: {
+        import_updates: RouteStats
+        import_withdraws: RouteStats
+        export_updates: RouteStats
+        export_withdraws: RouteStats
+    }
+}
 
 defineProps<{
-    channels: any[];
-}>();
+    channels: Channel[]
+}>()
 </script>
 
 <template>
@@ -13,19 +26,34 @@ defineProps<{
             <a-divider>{{ channel.name }}</a-divider>
 
             <h4>Route Statistics</h4>
-            <div class="stats-container">
-                <div class="stats-item full-width">
-                    <RouteStatsComponent
-                        :importUpdates="channel.route_stats.import_updates"
-                        :importWithdraws="channel.route_stats.import_withdraws"
-                        :exportUpdates="channel.route_stats.export_updates"
-                        :exportWithdraws="channel.route_stats.export_withdraws"
-                    />
+            <template
+                v-if="
+                    channel.route_stats &&
+                    channel.route_stats.import_updates &&
+                    channel.route_stats.import_withdraws &&
+                    channel.route_stats.export_updates &&
+                    channel.route_stats.export_withdraws
+                "
+            >
+                <div class="stats-container">
+                    <div class="stats-item full-width">
+                        <RouteStatsComponent
+                            :importUpdates="channel.route_stats.import_updates"
+                            :importWithdraws="channel.route_stats.import_withdraws"
+                            :exportUpdates="channel.route_stats.export_updates"
+                            :exportWithdraws="channel.route_stats.export_withdraws"
+                        />
+                    </div>
                 </div>
-            </div>
+            </template>
+
             <a-descriptions bordered :column="2">
-                <a-descriptions-item label="Stats">{{ channel.state }}</a-descriptions-item>
-                <a-descriptions-item label="BGP Next Hop">{{ channel.bgp_next_hop }}</a-descriptions-item>
+                <a-descriptions-item label="Stats">{{
+                    channel.state
+                }}</a-descriptions-item>
+                <a-descriptions-item label="BGP Next Hop">{{
+                    channel.bgp_next_hop
+                }}</a-descriptions-item>
             </a-descriptions>
         </div>
     </div>

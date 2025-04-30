@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Appbar from '@/components/appbar.vue'
+import Appbar from '@/components/AppNavBar.vue'
 
 defineOptions({
     name: 'AppComponent'
