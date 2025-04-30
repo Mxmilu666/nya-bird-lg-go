@@ -7,97 +7,92 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  actions: read
+
+env:
+  FRONTEND_DIR: frontend
+  BACKEND_DIR: backend
+
 jobs:
   build-frontend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout code (full history for semver)
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Install pnpm
+      - name: Setup pnpm & Node.js
         uses: pnpm/action-setup@v2
         with:
           version: 8
           run_install: false
 
-      - name: Set up Node.js
+      - name: Set up Node.js (with pnpm cache)
         uses: actions/setup-node@v3
         with:
           node-version: '20'
           cache: 'pnpm'
-          cache-dependency-path: 'frontend/pnpm-lock.yaml'
+          cache-dependency-path: '${{ env.FRONTEND_DIR }}/pnpm-lock.yaml'
 
-      - name: Install frontend dependencies
-        run: |
-          cd frontend
-          pnpm install
+      - name: Install frontend dependencies (frozen lockfile)
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: pnpm install --frozen-lockfile
 
-      - name: Remove .env file
-        run: |
-          cd frontend
-          rm -f .env
+      - name: Lint frontend
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: pnpm lint
 
       - name: Build frontend
-        run: |
-          cd frontend
-          pnpm build
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: pnpm build
 
+      # 前端制品
       - name: Upload frontend artifacts
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: frontend/dist/
+          path: ${{ env.FRONTEND_DIR }}/dist/
+          retention-days: 7
 
   build-backend:
     needs: build-frontend
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - os: linux
-            arch: amd64
-            binary: nya-bird-lg-go
-            archive_ext: tar.gz
-            archive_cmd: tar -czf
-
-          - os: linux
-            arch: arm64
-            binary: nya-bird-lg-go
-            archive_ext: tar.gz
-            archive_cmd: tar -czf
-
-          - os: linux
-            arch: arm
-            binary: nya-bird-lg-go
-            archive_ext: tar.gz
-            archive_cmd: tar -czf
-
-          - os: windows
-            arch: amd64
-            binary: nya-bird-lg-go.exe
-            archive_ext: zip
-            archive_cmd: zip -r
-
-          - os: darwin
-            arch: amd64
-            binary: nya-bird-lg-go
-            archive_ext: tar.gz
-            archive_cmd: tar -czf
-
-          - os: darwin
-            arch: arm64
-            binary: nya-bird-lg-go
-            archive_ext: tar.gz
-            archive_cmd: tar -czf
+          - os: linux; arch: amd64; binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
+          - os: linux; arch: arm64; binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
+          - os: linux; arch: arm;   binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
+          - os: windows; arch: amd64; binary: nya-bird-lg-go.exe; ext: zip;    cmd: zip -r
+          - os: darwin; arch: amd64; binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
+          - os: darwin; arch: arm64; binary: nya-bird-lg-go; ext: tar.gz; cmd: tar -czf
 
     steps:
-      - name: Checkout code
+      - name: Checkout code (full history)
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-mod-
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21'
+          go-version: '1.21'    # 可改为 go-version-file: go.mod
 
       - name: Download frontend artifacts
         uses: actions/download-artifact@v4
@@ -106,42 +101,38 @@ jobs:
           path: backend/frontend/dist
 
       - name: Build backend
-        run: |
-          cd backend
-          go mod download
-          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o ${{ matrix.binary }}
+        working-directory: ${{ env.BACKEND_DIR }}
         env:
           CGO_ENABLED: 0
+        run: |
+          go mod download
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o ${{ matrix.binary }}
 
       - name: Prepare package
         run: |
           mkdir -p dist/${{ matrix.os }}-${{ matrix.arch }}
-          cp backend/${{ matrix.binary }} dist/${{ matrix.os }}-${{ matrix.arch }}/${{ matrix.binary }}
+          cp ${{ env.BACKEND_DIR }}/${{ matrix.binary }} dist/${{ matrix.os }}-${{ matrix.arch }}/${{ matrix.binary }}
           cp README.md dist/${{ matrix.os }}-${{ matrix.arch }}/
-          
-          # 创建配置样例
-          cat > dist/${{ matrix.os }}-${{ matrix.arch }}/.env.sample << EOL
+          cat > dist/${{ matrix.os }}-${{ matrix.arch }}/.env.sample << 'EOL'
           # Server config
           BIRDLG_HOST=0.0.0.0
           BIRDLG_LISTEN=5000
-          
           # Looking Glass config
-          # Example: "Router1<router1>,Router2<router2>"
           BIRDLG_SERVERS=
           BIRDLG_DOMAIN=example.com
           BIRDLG_PROXY_PORT=8000
           BIRDLG_SSL=false
           BIRDLG_TIMEOUT=10
           EOL
-          
           cd dist
-          ${{ matrix.archive_cmd }} nya-bird-lg-go-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.archive_ext }} ${{ matrix.os }}-${{ matrix.arch }}/
+          ${{ matrix.cmd }} nya-bird-lg-go-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.ext }} ${{ matrix.os }}-${{ matrix.arch }}/
 
-      - name: Upload build artifacts
+      - name: Upload backend artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nya-bird-lg-go-${{ matrix.os }}-${{ matrix.arch }}
-          path: dist/nya-bird-lg-go-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.archive_ext }}
+          path: dist/nya-bird-lg-go-${{ matrix.os }}-${{ matrix.arch }}.${{ matrix.ext }}
+          retention-days: 30
 
   package-all:
     needs: build-backend
@@ -159,8 +150,8 @@ jobs:
 
       - name: Prepare combined package
         run: |
-          mkdir -p combined
-          find artifacts -name "*.tar.gz" -o -name "*.zip" -type f -exec cp {} combined/ \;
+          mkdir combined
+          find artifacts -type f -exec cp {} combined/ \;
           ls -la combined/
 
       - name: Upload combined artifacts
@@ -169,3 +160,4 @@ jobs:
           name: nya-bird-lg-go-all-platforms
           path: combined/
           if-no-files-found: error
+          retention-days: 30
