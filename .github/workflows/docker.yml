@@ -83,7 +83,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: yourorg/nya-bird-lg-go
+          images: mxmilu666/nya-bird-lg-go
           tags: |
             type=ref,event=branch
             type=ref,event=pr
