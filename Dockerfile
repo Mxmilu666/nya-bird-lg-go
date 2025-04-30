@@ -3,18 +3,17 @@ FROM golang:1.23-alpine AS builder
 
 # 获取目标平台信息
 ARG TARGETPLATFORM
+ARG GOARCH
 RUN echo "Building for $TARGETPLATFORM"
 
 # 根据目标平台设置正确的 GOARCH
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-      export GOARCH=amd64; \
+      echo "GOARCH=amd64" >> /etc/environment; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-      export GOARCH=arm64; \
+      echo "GOARCH=arm64" >> /etc/environment; \
     else \
       echo "Unsupported platform: $TARGETPLATFORM" && exit 1; \
-    fi \
-    && echo "Set GOARCH=$GOARCH" \
-    && echo "export GOARCH=$GOARCH" >> /etc/profile
+    fi
 
 WORKDIR /app
 
@@ -22,11 +21,11 @@ WORKDIR /app
 COPY backend/ .  
 
 # 安装构建工具、编译并压缩二进制
-RUN apk add --no-cache git upx \
-    && source /etc/profile \
-    && CGO_ENABLED=0 GOOS=linux \
-    go build -ldflags="-s -w" -o nya-bird-lg-go . \
-    && upx --ultra-brute nya-bird-lg-go
+RUN apk add --no-cache git upx && \
+    . /etc/environment && \
+    CGO_ENABLED=0 GOOS=linux \
+    go build -ldflags="-s -w" -o nya-bird-lg-go . && \
+    upx --ultra-brute nya-bird-lg-go
 
 # ---------- Runtime Stage ----------
 FROM scratch AS runtime

@@ -116,7 +116,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: go.mod
+          go-version-file: 1.23.0
 
       - name: Download frontend artifacts
         uses: actions/download-artifact@v4
